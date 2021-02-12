@@ -49,7 +49,7 @@ end
 
 defmodule SampleGrpc.User.Service do
   @moduledoc false
-  use GRPC.Service, name: "sample_app.User"
+  use GRPC.Service, name: "sample_grpc.User"
 
   rpc :Create, SampleGrpc.CreateRequest, SampleGrpc.UserReply
 
