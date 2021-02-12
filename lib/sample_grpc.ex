@@ -1,18 +1,31 @@
-defmodule SampleGrpc do
-  @moduledoc """
-  Documentation for `SampleGrpc`.
-  """
+defmodule SampleGrpc.Endpoint do
+  use GRPC.Endpoint
 
-  @doc """
-  Hello world.
+  intercept GRPC.Logger.Server
+  run SampleGrpc.User.Server
+end
 
-  ## Examples
+defmodule SampleGrpc.User.Server do
+  use GRPC.Server, service: SampleGrpc.User.Service
 
-      iex> SampleGrpc.hello()
-      :world
+  def create(request, _stream) do
+    new_user =
+      UserDB.add_user(%{
+        first_name: request.first_name,
+        last_name: request.last_name,
+        age: request.age
+      })
 
-  """
-  def hello do
-    :world
+    SampleGrpc.UserReply.new(new_user)
+  end
+
+  def get(request, _stream) do
+    user = UserDB.get_user(request.id)
+
+    if user == nil do
+      raise GRPC.RPCError, status: :not_found
+    else
+      SampleGrpc.UserReply.new(user)
+    end
   end
 end
